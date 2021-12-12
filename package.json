@@ -1,0 +1,22 @@
+{
+  "name": "hami-vuex",
+  "version": "0.1.0",
+  "description": "哈密瓜味的 Vuex ！",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guyskk/hami-vuex.git"
+  },
+  "author": "guyskk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/guyskk/hami-vuex/issues"
+  },
+  "homepage": "https://github.com/guyskk/hami-vuex#readme",
+  "dependencies": {
+    "vuex": "^3.2.0"
+  }
+}
