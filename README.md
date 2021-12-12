@@ -11,6 +11,10 @@
 
 ## 开始使用
 
+```bash
+npm install --save hami-vuex
+```
+
 ### 创建 Hami Store 实例
 
 ```js
