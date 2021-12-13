@@ -18,6 +18,9 @@ function createVuexStore(options) {
 }
 
 function createHamiStore(options) {
+  if (isNil(options)) {
+    options = {}
+  }
   let vuexStore = options.vuexStore
   if (isNil(vuexStore)) {
     vuexStore = createVuexStore({
@@ -119,9 +122,9 @@ function _defineBuiltinMutations({ store, moduleName, stateFunc }) {
   return Object.entries({
     $patch(partialStateOrMutator) {
       if (isFunction(partialStateOrMutator)) {
-        patchMutator(partialStateOrMutator)
+        return patchMutator(partialStateOrMutator)
       } else {
-        patchPartial(partialStateOrMutator)
+        return patchPartial(partialStateOrMutator)
       }
     },
     $reset() {
