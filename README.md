@@ -84,13 +84,19 @@ import { counterStore } from '@/store/counter'
 
 export default {
     computed: {
+        // 使用 state 中定义的属性
+        count: () => counterStore.count,
+        // 使用 getter 定义的属性
         double: () => counterStore.double
     },
     methods: {
+        // 使用 action 方法
         increment: counterStore.increment,
     },
     async mounted() {
+        // 直接调用 action 方法，以及访问属性
         await counterStore.query()
+        console.log(counterStore.count)
     },
     destroyed() {
         // 可以通过 $reset 重置状态

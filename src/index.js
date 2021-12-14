@@ -1,23 +1,7 @@
-import Vuex from 'vuex'
+import { createVuexStore, IS_VUEX_3 } from './compat'
+import { isNil, isFunction } from './helper'
 
-function isNil(value) {
-  return value === null || value === undefined
-}
-
-function isFunction(value) {
-  return typeof value === 'function'
-}
-
-const _IS_VUEX_3 = isNil(Vuex.createStore)
-
-function createVuexStore(options) {
-  if (_IS_VUEX_3) {
-    return new Vuex.Store(options)
-  }
-  return Vuex.createStore(options)
-}
-
-function createHamiStore(options) {
+function createHamiVuex(options) {
   if (isNil(options)) {
     options = {}
   }
@@ -30,50 +14,50 @@ function createHamiStore(options) {
       state: {},
     })
   }
-  const _moduleCount = { value: -1 }
+  const _storeCount = { value: 0 }
   const self = {
     vuexStore: vuexStore,
     install(_Vue) {
-      if (!_IS_VUEX_3) {
+      if (!IS_VUEX_3) {
         _Vue.use(vuexStore)
       }
     },
-    module(options) {
-      _moduleCount.value += 1
-      const context = { moduleId: _moduleCount.value, store: vuexStore }
-      return createHamiModule(context, options)
+    store(options) {
+      const context = { storeId: _storeCount.value, vuexStore: vuexStore }
+      _storeCount.value += 1
+      return createHamiStore(context, options)
     },
   }
   return self
 }
 
-function createHamiModule({ moduleId, store }, options) {
-  const define = _extractModuleDefines(options)
-  let moduleName = define.spec.$name
-  if (isNil(moduleName)) {
-    moduleName = `_hami_module_${moduleId.value}`
+function createHamiStore({ storeId, vuexStore }, options) {
+  const define = _extractStoreDefines(options)
+  let storeName = define.spec.$name
+  if (isNil(storeName)) {
+    storeName = `_hami_${storeId.value}`
   }
-  const stateFunc = _extractModuleState(define.spec.$state)
+  const stateFunc = _extractStoreState(define.spec.$state)
   const initialState = stateFunc()
 
-  define.mutations.push(..._defineBuiltinMutations({ store, moduleName, stateFunc }))
-  define.getters.push(..._defineBuiltinGetters({ store, moduleName }))
+  define.mutations.push(..._defineBuiltinMutations({ vuexStore, storeName, stateFunc }))
+  define.getters.push(..._defineBuiltinGetters({ vuexStore, storeName }))
 
   const self = {
-    $name: moduleName,
+    $name: storeName,
   }
   define.mutations.forEach(([key]) => {
-    self[key] = _createMutationMethod(store, moduleName, key)
+    self[key] = _createMutationMethod(vuexStore, storeName, key)
   })
   define.actions.forEach(([key]) => {
-    self[key] = _createActionMethod(store, moduleName, key)
+    self[key] = _createActionMethod(vuexStore, storeName, key)
   })
   define.getters.forEach(([key]) => {
-    let getterProperty = _createGetterProperty(store, moduleName, key)
+    let getterProperty = _createGetterProperty(vuexStore, storeName, key)
     Object.defineProperty(self, key, getterProperty)
   })
   Object.keys(initialState).forEach((key) => {
-    let stateProperty = _createStateProperty(store, moduleName, key)
+    let stateProperty = _createStateProperty(vuexStore, storeName, key)
     Object.defineProperty(self, key, stateProperty)
   })
 
@@ -81,10 +65,10 @@ function createHamiModule({ moduleId, store }, options) {
   const mutations = _createMutations(define.mutations, () => self)
   const actions = _createActions(define.actions, () => self)
   // fix dev hot reloading: [vuex] duplicate getter key: namespace/getter
-  if (!isNil(store.state[moduleName])) {
-    store.unregisterModule(moduleName)
+  if (!isNil(vuexStore.state[storeName])) {
+    vuexStore.unregisterModule(storeName)
   }
-  store.registerModule(moduleName, {
+  vuexStore.registerModule(storeName, {
     namespaced: true,
     state: initialState,
     mutations: mutations,
@@ -95,26 +79,26 @@ function createHamiModule({ moduleId, store }, options) {
   return self
 }
 
-function _extractModuleState(stateFunc) {
+function _extractStoreState(stateFunc) {
   if (isNil(stateFunc)) {
     stateFunc = () => ({})
   } else if (!isFunction(stateFunc)) {
     const stateJson = JSON.stringify(stateFunc)
     if (isNil(stateJson)) {
-      throw new Error('module state should be function or plain object')
+      throw new Error('store state should be function or plain object')
     }
     stateFunc = () => JSON.parse(stateJson)
   }
   return stateFunc
 }
 
-function _defineBuiltinMutations({ store, moduleName, stateFunc }) {
+function _defineBuiltinMutations({ vuexStore, storeName, stateFunc }) {
   function patchMutator(stateMutator) {
-    const state = store.state[moduleName]
+    const state = vuexStore.state[storeName]
     return stateMutator.call(undefined, state)
   }
   function patchPartial(partialState) {
-    const state = store.state[moduleName]
+    const state = vuexStore.state[storeName]
     Object.keys(partialState).forEach((key) => {
       state[key] = partialState[key]
     })
@@ -128,7 +112,7 @@ function _defineBuiltinMutations({ store, moduleName, stateFunc }) {
       }
     },
     $reset() {
-      const state = store.state[moduleName]
+      const state = vuexStore.state[storeName]
       const newState = stateFunc()
       // see also: https://github.com/vuejs/vuex/issues/1118
       Object.keys(state).forEach((key) => {
@@ -138,17 +122,17 @@ function _defineBuiltinMutations({ store, moduleName, stateFunc }) {
   })
 }
 
-function _defineBuiltinGetters({ store, moduleName }) {
+function _defineBuiltinGetters({ vuexStore, storeName }) {
   return Object.entries({
     $state() {
-      return store.state[moduleName]
+      return vuexStore.state[storeName]
     },
   })
 }
 
 const MODULE_SPEC_KEYS = { $name: true, $state: true }
 
-function _extractModuleDefines(options) {
+function _extractStoreDefines(options) {
   const spec = {}
   const getters = []
   const actions = []
@@ -156,7 +140,7 @@ function _extractModuleDefines(options) {
   Object.keys(options).forEach((key) => {
     if (key.startsWith('$')) {
       if (!MODULE_SPEC_KEYS[key]) {
-        throw new Error(`key '${key}' is reserved in module options`)
+        throw new Error(`key '${key}' is reserved in store options`)
       }
       spec[key] = options[key]
       return
@@ -170,7 +154,7 @@ function _extractModuleDefines(options) {
     if (isFunction(actionHandler)) {
       actions.push([key, actionHandler])
     } else {
-      throw new Error(`unexpected value of key '${key}' in module options`)
+      throw new Error(`unexpected value of key '${key}' in store options`)
     }
   })
   return { spec, getters, actions, mutations: [] }
@@ -186,14 +170,14 @@ function _createMutations(mutationDefines, thisGetter) {
   return mutations
 }
 
-function _createMutationMethod(store, moduleName, key) {
+function _createMutationMethod(vuexStore, storeName, key) {
   return function () {
     let result = { value: undefined }
     function callback(x) {
       result.value = x
     }
     let params = [].slice.call(arguments)
-    store.commit(`${moduleName}/${key}`, { params, callback })
+    vuexStore.commit(`${storeName}/${key}`, { params, callback })
     return result.value
   }
 }
@@ -208,10 +192,10 @@ function _createGetters(getterDefines, thisGetter) {
   return getters
 }
 
-function _createGetterProperty(store, moduleName, key) {
+function _createGetterProperty(vuexStore, storeName, key) {
   return {
     get() {
-      return store.getters[`${moduleName}/${key}`]
+      return vuexStore.getters[`${storeName}/${key}`]
     },
   }
 }
@@ -226,24 +210,24 @@ function _createActions(actionDefines, thisGetter) {
   return actions
 }
 
-function _createActionMethod(store, moduleName, key) {
+function _createActionMethod(vuexStore, storeName, key) {
   return function () {
     let result = { value: undefined }
     function callback(x) {
       result.value = x
     }
     let params = [].slice.call(arguments)
-    store.dispatch(`${moduleName}/${key}`, { params, callback })
+    vuexStore.dispatch(`${storeName}/${key}`, { params, callback })
     return result.value
   }
 }
 
-function _createStateProperty(store, moduleName, key) {
+function _createStateProperty(vuexStore, storeName, key) {
   return {
     get() {
-      return store.state[moduleName][key]
+      return vuexStore.state[storeName][key]
     },
   }
 }
 
-export { createHamiStore }
+export { createHamiVuex }

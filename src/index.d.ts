@@ -10,7 +10,7 @@ declare type Immutable<T> =
 
 declare type StateMutator<S, R> = (this: never, state: S) => R
 
-declare type HamiModuleBase<S> = {
+declare type HamiStoreBase<S> = {
     readonly $name: string,
     readonly $state: Immutable<S>,
     $reset(): void,
@@ -18,36 +18,36 @@ declare type HamiModuleBase<S> = {
     $patch(partialState: Partial<S>): void
 }
 
-declare type HamiModuleDefine<T> = Immutable<Omit<T, '$name' | '$state'>>
+declare type HamiStoreDefine<T> = Immutable<Omit<T, '$name' | '$state'>>
 
-declare type HamiModule<S, T> =
+declare type HamiStore<S, T> =
     Immutable<S> &
-    HamiModuleDefine<T> &
-    HamiModuleBase<S>
+    HamiStoreDefine<T> &
+    HamiStoreBase<S>
 
-declare type HamiModuleState<S> = S | { (this: never): S }
+declare type HamiStoreState<S> = S | { (this: never): S }
 
-declare type HamiModuleOptions<S, T> = T & {
+declare type HamiStoreOptions<S, T> = T & {
     $name?: string,
-    $state?: HamiModuleState<S>,
-} & ThisType<HamiModule<S, T>>
+    $state?: HamiStoreState<S>,
+} & ThisType<HamiStore<S, T>>
 
-declare interface HamiStore<VS> {
+declare interface HamiVuex<VS> {
     readonly vuexStore: VuexStore<VS>,
     install(Vue: any): void;
-    module<
+    store<
         S extends object = {},
         T extends object = {}
-    >(options: HamiModuleOptions<S, T>): HamiModule<S, T>,
+    >(options: HamiStoreOptions<S, T>): HamiStore<S, T>,
 }
 
-declare type HamiStoreOptions<VS> = {
+declare type HamiVuexOptions<VS> = {
     readonly vuexStore?: VuexStore<VS>,
     readonly strict?: boolean;
     readonly devtools?: boolean;
     readonly plugins?: any;
 }
 
-declare function createHamiStore<VS = {}>(options?: HamiStoreOptions<VS>): HamiStore<VS>;
+declare function createHamiVuex<VS = {}>(options?: HamiVuexOptions<VS>): HamiVuex<VS>;
 
-export { createHamiStore }
+export { createHamiVuex }

@@ -1,4 +1,4 @@
-import { createHamiStore } from 'hami-vuex'
+import { createHamiVuex } from 'hami-vuex'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -12,15 +12,15 @@ function isFunction(value) {
   return typeof value === 'function'
 }
 
-test('createHamiStore', () => {
-  const hamiStore = createHamiStore()
-  expect(!isNil(hamiStore.vuexStore))
-  expect(isFunction(hamiStore.module))
+test('createHamiVuex', () => {
+  const hamiVuex = createHamiVuex()
+  expect(!isNil(hamiVuex.vuexStore))
+  expect(isFunction(hamiVuex.store))
 })
 
-test('hamiStore.module: empty store', () => {
-  const hamiStore = createHamiStore()
-  const emptyStore = hamiStore.module({})
+test('hamiVuex.store: empty store', () => {
+  const hamiVuex = createHamiVuex()
+  const emptyStore = hamiVuex.store({})
   expect(!isNil(emptyStore.$name))
   expect(!isNil(emptyStore.$state))
   expect(isFunction(emptyStore.$reset))
@@ -29,9 +29,9 @@ test('hamiStore.module: empty store', () => {
   emptyStore.$reset()
 })
 
-test('hamiStore.module: counter', async () => {
-  const hamiStore = createHamiStore()
-  const counterStore = hamiStore.module({
+test('hamiVuex.store: counter', async () => {
+  const hamiVuex = createHamiVuex()
+  const counterStore = hamiVuex.store({
     $name: 'counter',
     $state: {
       count: 0,
