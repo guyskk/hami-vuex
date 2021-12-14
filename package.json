@@ -11,7 +11,7 @@
   "browserslist": "> 0.1%, not dead",
   "scripts": {
     "build": "rollup -c",
-    "test": "npm run build && jest --collect-coverage"
+    "test": "npm run build && jest --config jest.config.json"
   },
   "repository": {
     "type": "git",

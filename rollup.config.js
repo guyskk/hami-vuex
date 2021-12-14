@@ -5,6 +5,7 @@ export default {
   output: {
     file: "dist/index.js",
     format: "umd",
+    sourcemap: true,
     name: "HamiVuex",
     globals: {
       vue: "Vue",
