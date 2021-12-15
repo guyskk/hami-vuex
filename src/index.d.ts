@@ -41,6 +41,15 @@ declare interface HamiVuex<VS> {
     >(options: HamiStoreOptions<S, T>): HamiStore<S, T>,
 }
 
+declare type HamiStoreUsing<S, T> = {
+    use<VS = {}>(vuexStore?: VuexStore<VS>): HamiStore<S, T>
+} & { [K in keyof HamiStore<S, T>]: () => HamiStore<S, T>[K] }
+
+declare function defineHamiStore<
+    S extends object = {},
+    T extends object = {}
+>(options: HamiStoreOptions<S, T>): HamiStoreUsing<S, T>
+
 declare type HamiVuexOptions<VS> = {
     readonly vuexStore?: VuexStore<VS>,
     readonly strict?: boolean;
@@ -48,6 +57,8 @@ declare type HamiVuexOptions<VS> = {
     readonly plugins?: any;
 }
 
-declare function createHamiVuex<VS = {}>(options?: HamiVuexOptions<VS>): HamiVuex<VS>;
+declare function createHamiVuex<
+    VS = {}
+>(options?: HamiVuexOptions<VS>): HamiVuex<VS>;
 
-export { createHamiVuex }
+export { createHamiVuex, defineHamiStore }
