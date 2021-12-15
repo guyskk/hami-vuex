@@ -33,6 +33,7 @@
     "@babel/preset-env": "^7.16.4",
     "@types/jest": "^27.0.3",
     "babel-jest": "^27.4.4",
+    "eslint": "^8.4.1",
     "jest": "^27.4.4",
     "rollup": "^2.61.1",
     "rollup-plugin-copy": "^3.4.0",
