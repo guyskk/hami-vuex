@@ -11,7 +11,8 @@
   "browserslist": "> 0.1%, not dead",
   "scripts": {
     "build": "rollup -c",
-    "test": "npm run build && jest --config jest.config.json"
+    "lint": "eslint src tests",
+    "test": "npm run lint && npm run build && jest --config jest.config.json"
   },
   "repository": {
     "type": "git",
