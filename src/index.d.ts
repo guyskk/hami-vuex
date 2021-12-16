@@ -42,7 +42,7 @@ declare interface HamiVuex<VS> {
 }
 
 declare type HamiStoreUsing<S, T> = {
-    use<VS = {}>(vuexStore?: VuexStore<VS>): HamiStore<S, T>
+    use(vuexStore?: VuexStore<any>): HamiStore<S, T>
 } & { [K in keyof HamiStore<S, T>]: () => HamiStore<S, T>[K] }
 
 declare function defineHamiStore<

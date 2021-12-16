@@ -29,16 +29,23 @@ function createHamiVuex(options) {
   return self
 }
 
+function _isVuexStore(obj) {
+  return !isNil(obj) && !isNil(obj.state) && !isNil(obj.getters)
+}
+
 function defineHamiStore(options) {
   const { storeKeys, useStore } = internalDefineHamiStore(options)
   function getStore(that, vuexStore) {
     if (!isNil(vuexStore)) {
-      return vuexStore
+      if (_isVuexStore(vuexStore)) {
+        return vuexStore
+      }
+      throw new Error('value is not vuex store')
     }
     if (!isNil(that)) {
       for (let key of ['$store', _internalName.vuexStore]) {
-        let vuexStore = that[key]
-        if (!isNil(vuexStore) && !isNil(vuexStore.state)) {
+        vuexStore = that[key]
+        if (_isVuexStore(vuexStore)) {
           return vuexStore
         }
       }
@@ -46,8 +53,7 @@ function defineHamiStore(options) {
     throw new Error('vuex store not found')
   }
   function use(vuexStore) {
-    vuexStore = getStore(this, vuexStore)
-    return useStore(vuexStore)
+    return useStore(getStore(this, vuexStore))
   }
   const using = { use }
   storeKeys.forEach((key) => {
@@ -140,7 +146,7 @@ function internalDefineHamiStore(options) {
     return got
   }
 
-  const storeKeys = [].concat(
+  const storeKeys = stateKeys.concat(
     ['$name', '$patch', '$reset', '$state'],
     define.mutations.map(([key]) => key),
     define.getters.map(([key]) => key),
@@ -199,7 +205,7 @@ function _defineBuiltinGetters({ vuexStore, storeName, self }) {
     $state() {
       return vuexStore.state[storeName]
     },
-    $_internal_hami_vuex_store() {
+    [_internalName.store]() {
       return self
     },
   })

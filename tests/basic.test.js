@@ -1,17 +1,10 @@
-import { createHamiVuex } from 'hami-vuex'
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { test, expect } from '@jest/globals'
+import { createHamiVuex } from '../dist'
+import { isNil, isFunction } from '../src/helper'
 
 Vue.use(Vuex)
-
-function isNil(value) {
-  return value === null || value === undefined
-}
-
-function isFunction(value) {
-  return typeof value === 'function'
-}
 
 test('createHamiVuex', () => {
   const hamiVuex = createHamiVuex()
