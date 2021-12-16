@@ -1,4 +1,4 @@
-import { createVuexStore, IS_VUEX_3 } from './compat'
+import { createVuexStore, installVuexStore } from './compat'
 import { isNil, isFunction } from './helper'
 
 function createHamiVuex(options) {
@@ -17,9 +17,7 @@ function createHamiVuex(options) {
   const self = {
     vuexStore: vuexStore,
     install(_Vue) {
-      if (!IS_VUEX_3) {
-        _Vue.use(vuexStore)
-      }
+      installVuexStore(_Vue, vuexStore)
     },
     store(options) {
       const { useStore } = internalDefineHamiStore(options)
@@ -35,25 +33,25 @@ function _isVuexStore(obj) {
 
 function defineHamiStore(options) {
   const { storeKeys, useStore } = internalDefineHamiStore(options)
-  function getStore(that, vuexStore) {
-    if (!isNil(vuexStore)) {
-      if (_isVuexStore(vuexStore)) {
-        return vuexStore
+  function getStore(that, store) {
+    // store: vuexStore, hamiStore; that: Vue instance, hamiStore
+    for (let candidate of [store, that]) {
+      if (_isVuexStore(candidate)) {
+        return candidate
       }
-      throw new Error('value is not vuex store')
-    }
-    if (!isNil(that)) {
-      for (let key of ['$store', _internalName.vuexStore]) {
-        vuexStore = that[key]
-        if (_isVuexStore(vuexStore)) {
-          return vuexStore
+      if (!isNil(candidate)) {
+        for (let key of ['$store', _internalName.vuexStore]) {
+          let vuexStore = candidate[key]
+          if (_isVuexStore(vuexStore)) {
+            return vuexStore
+          }
         }
       }
     }
     throw new Error('vuex store not found')
   }
-  function use(vuexStore) {
-    return useStore(getStore(this, vuexStore))
+  function use(store) {
+    return useStore(getStore(this, store))
   }
   const using = { use }
   storeKeys.forEach((key) => {
@@ -146,11 +144,12 @@ function internalDefineHamiStore(options) {
     return got
   }
 
+  const mapToKey = ([key]) => key
   const storeKeys = stateKeys.concat(
     ['$name', '$patch', '$reset', '$state'],
-    define.mutations.map(([key]) => key),
-    define.getters.map(([key]) => key),
-    define.actions.map(([key]) => key)
+    define.mutations.map(mapToKey),
+    define.getters.map(mapToKey),
+    define.actions.map(mapToKey)
   )
 
   _storeCount.value += 1
@@ -162,7 +161,7 @@ function _extractStoreState(stateFunc) {
     stateFunc = () => ({})
   } else if (!isFunction(stateFunc)) {
     const stateJson = JSON.stringify(stateFunc)
-    if (isNil(stateJson)) {
+    if (isNil(stateJson) || !stateJson.startsWith('{')) {
       throw new Error('store state should be function or plain object')
     }
     stateFunc = () => JSON.parse(stateJson)

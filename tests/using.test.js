@@ -157,3 +157,8 @@ test('defineHamiStore: counter using', async () => {
     expect(store.double).toBe(0)
   })
 })
+
+test('defineHamiStore: using error', () => {
+  const EmptyStore = defineHamiStore({})
+  expect(() => EmptyStore.use({})).toThrow(/vuex store not found/)
+})

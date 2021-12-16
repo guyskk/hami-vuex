@@ -10,6 +10,7 @@ test('createHamiVuex', () => {
   const hamiVuex = createHamiVuex()
   expect(!isNil(hamiVuex.vuexStore))
   expect(isFunction(hamiVuex.store))
+  Vue.use(hamiVuex)
 })
 
 test('hamiVuex.store: empty store', () => {
@@ -21,6 +22,21 @@ test('hamiVuex.store: empty store', () => {
   expect(isFunction(emptyStore.$patch))
   emptyStore.$patch({})
   emptyStore.$reset()
+})
+
+test('hamiVuex.store: dev hot reloading', () => {
+  const hamiVuex = createHamiVuex()
+  const store1 = hamiVuex.store({
+    $name: 'hot',
+    $state: { count: 1 },
+  })
+  expect(store1.count).toBe(1)
+  const store2 = hamiVuex.store({
+    $name: 'hot',
+    $state: { count: 2 },
+  })
+  expect(store1.count).toBe(2)
+  expect(store2.count).toBe(2)
 })
 
 test('hamiVuex.store: counter', async () => {
@@ -67,4 +83,23 @@ test('hamiVuex.store: counter', async () => {
   expect(counterStore.$state.count).toBe(1)
   expect(counterStore.count).toBe(1)
   expect(counterStore.double).toBe(2)
+})
+
+test('hamiVuex.store: error', async () => {
+  const hamiVuex = createHamiVuex()
+  expect(() => {
+    hamiVuex.store({
+      $abc: 123,
+    })
+  }).toThrow(/is reserved/)
+  expect(() => {
+    hamiVuex.store({
+      abc: 123,
+    })
+  }).toThrow(/unexpected value/)
+  expect(() => {
+    hamiVuex.store({
+      $state: 123,
+    })
+  }).toThrow(/should be function or plain object/)
 })

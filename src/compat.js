@@ -9,3 +9,9 @@ export function createVuexStore(options) {
   }
   return Vuex.createStore(options)
 }
+
+export function installVuexStore(_Vue, vuexStore) {
+  if (!IS_VUEX_3) {
+    _Vue.use(vuexStore)
+  }
+}
