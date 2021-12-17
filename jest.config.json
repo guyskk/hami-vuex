@@ -1,4 +1,5 @@
 {
+    "testEnvironment": "jsdom",
     "collectCoverage": true,
     "collectCoverageFrom": [
         "dist/**/*.js"

@@ -35,14 +35,7 @@ function _isVuexStore(obj) {
 
 function defineHamiStore(options) {
   const { storeKeys, useStore } = internalDefineHamiStore(options)
-  function getStore(that, store) {
-    if (isNil(store)) {
-      // inject vuex store inside Vue 3 setup hook
-      let vuexStore = useVuexStore()
-      if (!isNil(vuexStore)) {
-        return vuexStore
-      }
-    }
+  function getStore({ that, store, useInject }) {
     // store: vuexStore, hamiStore; that: Vue instance, hamiStore
     for (let candidate of [store, that]) {
       if (_isVuexStore(candidate)) {
@@ -57,15 +50,24 @@ function defineHamiStore(options) {
         }
       }
     }
+    if (isNil(store) && useInject) {
+      // inject vuex store inside Vue 3 setup hook
+      let vuexStore = useVuexStore()
+      if (!isNil(vuexStore)) {
+        return vuexStore
+      }
+    }
     throw new Error('vuex store not found')
   }
   function use(store) {
-    return useStore(getStore(this, store))
+    const vuexStore = getStore({ that: this, store, useInject: true })
+    return useStore(vuexStore)
   }
   const using = { use }
   storeKeys.forEach((key) => {
     using[key] = function () {
-      return useStore(getStore(this))[key]
+      const vuexStore = getStore({ that: this, useInject: false })
+      return useStore(vuexStore)[key]
     }
   })
   return using

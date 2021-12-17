@@ -1,9 +1,8 @@
-import Vue from 'vue'
 import Vuex from 'vuex'
 import { test, expect } from '@jest/globals'
 import { createHamiVuex } from '../dist'
 import { isNil, isFunction } from './helper'
-import { IS_VUEX_3, createVueApp } from './helper'
+import { Vue, IS_VUEX_3, createVueApp } from './helper'
 import { counterOptions } from './helper'
 
 if (IS_VUEX_3) {

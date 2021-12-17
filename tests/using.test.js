@@ -1,9 +1,8 @@
-import Vue from 'vue'
 import Vuex from 'vuex'
 import { test, expect } from '@jest/globals'
 import { defineHamiStore } from '../dist'
 import { isNil, isFunction } from './helper'
-import { IS_VUEX_3, createVueApp, createVuexStore } from './helper'
+import { Vue, IS_VUEX_3, createMountedVueApp, createVuexStore } from './helper'
 import { counterOptions } from './helper'
 
 if (IS_VUEX_3) {
@@ -71,8 +70,7 @@ test('defineHamiStore: counter using', async () => {
   const vuexStore = createVuexStore()
   const counterStore = CounterStore.use(vuexStore)
   const counterStore2 = CounterStore.use.call({ $store: vuexStore })
-  const component = createVueApp({
-    store: vuexStore,
+  const componentStore = createMountedVueApp(vuexStore, {
     computed: {
       counterStore: CounterStore.use,
       $name: CounterStore.$name,
@@ -85,15 +83,11 @@ test('defineHamiStore: counter using', async () => {
       incrementAndReturnDouble: CounterStore.incrementAndReturnDouble,
     },
   })
-  if (!IS_VUEX_3) {
-    component.use(vuexStore)
-  }
-
   const storeList = Object.entries({
     counterStore,
     counterStore2,
-    componentStore: component,
-    componentStore2: component.counterStore,
+    componentStore: componentStore,
+    componentStore2: componentStore.counterStore,
   })
 
   function forEachStore(fn) {
@@ -119,13 +113,13 @@ test('defineHamiStore: counter using', async () => {
     expect(store.double).toBe(2)
   })
 
-  expect(await component.incrementAndReturnDouble()).toBe(4)
+  expect(await componentStore.incrementAndReturnDouble()).toBe(4)
   forEachStore((store) => {
     expect(store.count).toBe(2)
     expect(store.double).toBe(4)
   })
 
-  component.$reset()
+  componentStore.$reset()
   forEachStore((store) => {
     expect(store.count).toBe(0)
     expect(store.double).toBe(0)
@@ -142,7 +136,8 @@ test('defineHamiStore: Vue 3 setup', () => {
     return
   }
   const CounterStore = defineHamiStore(counterOptions)
-  const component = createVueApp({
+  const vuexStore = createVuexStore()
+  const componentStore = createMountedVueApp(vuexStore, {
     setup() {
       const counterStore = CounterStore.use()
       return {
@@ -151,12 +146,10 @@ test('defineHamiStore: Vue 3 setup', () => {
       }
     },
   })
-  const vuexStore = createVuexStore()
-  component.use(vuexStore)
-  expect(!isNil(component.counterStore))
-  expect(isFunction(component.increment))
-  expect(component.counterStore.count).toBe(0)
-  expect(component.increment()).toBe(1)
-  expect(component.counterStore.count).toBe(1)
-  expect(component.counterStore.double).toBe(2)
+  expect(!isNil(componentStore.counterStore))
+  expect(isFunction(componentStore.increment))
+  expect(componentStore.counterStore.count).toBe(0)
+  expect(componentStore.increment()).toBe(1)
+  expect(componentStore.counterStore.count).toBe(1)
+  expect(componentStore.counterStore.double).toBe(2)
 })
