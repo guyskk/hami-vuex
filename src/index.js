@@ -1,5 +1,7 @@
-import { createVuexStore, installVuexStore } from './compat'
+import { createVuexStore, installVuexStore, useVuexStore } from './compat'
 import { isNil, isFunction } from './helper'
+
+const VUEX_STORE_KEY = '$store'
 
 function createHamiVuex(options) {
   if (isNil(options)) {
@@ -34,13 +36,20 @@ function _isVuexStore(obj) {
 function defineHamiStore(options) {
   const { storeKeys, useStore } = internalDefineHamiStore(options)
   function getStore(that, store) {
+    if (isNil(store)) {
+      // inject vuex store inside Vue 3 setup hook
+      let vuexStore = useVuexStore()
+      if (!isNil(vuexStore)) {
+        return vuexStore
+      }
+    }
     // store: vuexStore, hamiStore; that: Vue instance, hamiStore
     for (let candidate of [store, that]) {
       if (_isVuexStore(candidate)) {
         return candidate
       }
       if (!isNil(candidate)) {
-        for (let key of ['$store', _internalName.vuexStore]) {
+        for (let key of [VUEX_STORE_KEY, _internalName.vuexStore]) {
           let vuexStore = candidate[key]
           if (_isVuexStore(vuexStore)) {
             return vuexStore
@@ -70,6 +79,9 @@ const _internalName = {
 const _storeCount = { value: 0 }
 
 function internalDefineHamiStore(options) {
+  if (isNil(options)) {
+    options = {}
+  }
   const define = _extractStoreDefines(options)
   const storeId = _storeCount.value
   let storeName = define.spec.$name

@@ -1,4 +1,5 @@
 // eslint-disable-next-line no-unused-vars
+import type Vue from 'vue'
 import type { Store as VuexStore } from 'vuex'
 
 declare type Callable = (...args: any) => any
@@ -38,17 +39,17 @@ declare interface HamiVuex<VS> {
     store<
         S extends object = {},
         T extends object = {}
-    >(options: HamiStoreOptions<S, T>): HamiStore<S, T>,
+    >(options?: HamiStoreOptions<S, T>): HamiStore<S, T>,
 }
 
 declare type HamiStoreUsing<S, T> = {
-    use(vuexStore?: VuexStore<any>): HamiStore<S, T>
+    use(store?: VuexStore<any> | HamiStore<any, any> | Vue): HamiStore<S, T>
 } & { [K in keyof HamiStore<S, T>]: () => HamiStore<S, T>[K] }
 
 declare function defineHamiStore<
     S extends object = {},
     T extends object = {}
->(options: HamiStoreOptions<S, T>): HamiStoreUsing<S, T>
+>(options?: HamiStoreOptions<S, T>): HamiStoreUsing<S, T>
 
 declare type HamiVuexOptions<VS> = {
     readonly vuexStore?: VuexStore<VS>,

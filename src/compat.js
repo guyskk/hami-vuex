@@ -15,3 +15,10 @@ export function installVuexStore(_Vue, vuexStore) {
     _Vue.use(vuexStore)
   }
 }
+
+export function useVuexStore() {
+  if (!IS_VUEX_3) {
+    return Vuex.useStore()
+  }
+  return null
+}

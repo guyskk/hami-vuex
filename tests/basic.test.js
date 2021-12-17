@@ -2,20 +2,25 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { test, expect } from '@jest/globals'
 import { createHamiVuex } from '../dist'
-import { isNil, isFunction } from '../src/helper'
+import { isNil, isFunction } from './helper'
+import { IS_VUEX_3, createVueApp } from './helper'
+import { counterOptions } from './helper'
 
-Vue.use(Vuex)
+if (IS_VUEX_3) {
+  Vue.use(Vuex)
+}
 
 test('createHamiVuex', () => {
   const hamiVuex = createHamiVuex()
   expect(!isNil(hamiVuex.vuexStore))
   expect(isFunction(hamiVuex.store))
-  Vue.use(hamiVuex)
+  const app = IS_VUEX_3 ? Vue : createVueApp()
+  app.use(hamiVuex)
 })
 
 test('hamiVuex.store: empty store', () => {
   const hamiVuex = createHamiVuex()
-  const emptyStore = hamiVuex.store({})
+  const emptyStore = hamiVuex.store()
   expect(!isNil(emptyStore.$name))
   expect(!isNil(emptyStore.$state))
   expect(isFunction(emptyStore.$reset))
@@ -41,23 +46,7 @@ test('hamiVuex.store: dev hot reloading', () => {
 
 test('hamiVuex.store: counter', async () => {
   const hamiVuex = createHamiVuex()
-  const counterStore = hamiVuex.store({
-    $name: 'counter',
-    $state: {
-      count: 0,
-    },
-    get double() {
-      return this.count * 2
-    },
-    increment() {
-      this.$patch({ count: this.count + 1 })
-      return this.count
-    },
-    async incrementAndReturnDouble() {
-      this.increment()
-      return this.double
-    },
-  })
+  const counterStore = hamiVuex.store(counterOptions)
   expect(counterStore.$name).toBe('counter')
   expect(counterStore.$state.count).toBe(0)
   expect(counterStore.count).toBe(0)

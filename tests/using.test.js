@@ -2,10 +2,13 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import { test, expect } from '@jest/globals'
 import { defineHamiStore } from '../dist'
-import { isNil, isFunction } from '../src/helper'
-import { createVuexStore } from '../src/compat'
+import { isNil, isFunction } from './helper'
+import { IS_VUEX_3, createVueApp, createVuexStore } from './helper'
+import { counterOptions } from './helper'
 
-Vue.use(Vuex)
+if (IS_VUEX_3) {
+  Vue.use(Vuex)
+}
 
 test('defineHamiStore: empty store', () => {
   const EmptyStore = defineHamiStore({})
@@ -26,23 +29,7 @@ test('defineHamiStore: empty store', () => {
 })
 
 test('defineHamiStore: counter', async () => {
-  const CounterStore = defineHamiStore({
-    $name: 'counter',
-    $state: {
-      count: 0,
-    },
-    get double() {
-      return this.count * 2
-    },
-    increment() {
-      this.$patch({ count: this.count + 1 })
-      return this.count
-    },
-    async incrementAndReturnDouble() {
-      this.increment()
-      return this.double
-    },
-  })
+  const CounterStore = defineHamiStore(counterOptions)
 
   const vuexStore = createVuexStore()
   const counterStore = CounterStore.use(vuexStore)
@@ -79,28 +66,12 @@ test('defineHamiStore: counter', async () => {
 })
 
 test('defineHamiStore: counter using', async () => {
-  const CounterStore = defineHamiStore({
-    $name: 'counter',
-    $state: {
-      count: 0,
-    },
-    get double() {
-      return this.count * 2
-    },
-    increment() {
-      this.$patch({ count: this.count + 1 })
-      return this.count
-    },
-    async incrementAndReturnDouble() {
-      this.increment()
-      return this.double
-    },
-  })
+  const CounterStore = defineHamiStore(counterOptions)
 
   const vuexStore = createVuexStore()
   const counterStore = CounterStore.use(vuexStore)
   const counterStore2 = CounterStore.use.call({ $store: vuexStore })
-  const component = new Vue({
+  const component = createVueApp({
     store: vuexStore,
     computed: {
       counterStore: CounterStore.use,
@@ -114,6 +85,9 @@ test('defineHamiStore: counter using', async () => {
       incrementAndReturnDouble: CounterStore.incrementAndReturnDouble,
     },
   })
+  if (!IS_VUEX_3) {
+    component.use(vuexStore)
+  }
 
   const storeList = Object.entries({
     counterStore,
@@ -161,4 +135,28 @@ test('defineHamiStore: counter using', async () => {
 test('defineHamiStore: using error', () => {
   const EmptyStore = defineHamiStore({})
   expect(() => EmptyStore.use({})).toThrow(/vuex store not found/)
+})
+
+test('defineHamiStore: Vue 3 setup', () => {
+  if (IS_VUEX_3) {
+    return
+  }
+  const CounterStore = defineHamiStore(counterOptions)
+  const component = createVueApp({
+    setup() {
+      const counterStore = CounterStore.use()
+      return {
+        counterStore: counterStore,
+        increment: counterStore.increment,
+      }
+    },
+  })
+  const vuexStore = createVuexStore()
+  component.use(vuexStore)
+  expect(!isNil(component.counterStore))
+  expect(isFunction(component.increment))
+  expect(component.counterStore.count).toBe(0)
+  expect(component.increment()).toBe(1)
+  expect(component.counterStore.count).toBe(1)
+  expect(component.counterStore.double).toBe(2)
 })

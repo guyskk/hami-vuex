@@ -1,4 +1,7 @@
 {
     "collectCoverage": true,
+    "collectCoverageFrom": [
+        "dist/**/*.js"
+    ],
     "verbose": true
 }
