@@ -147,6 +147,9 @@ function internalDefineHamiStore(options) {
 
   function useStore(vuexStore) {
     let got = vuexStore.getters[`${storeName}/${_internalName.store}`]
+    if (!isNil(got)) {
+      got = got()
+    }
     // fix dev hot reloading: [vuex] duplicate getter key: namespace/getter
     if (!isNil(got) && got[_internalName.storeId] !== storeId) {
       vuexStore.unregisterModule(storeName)
@@ -219,7 +222,7 @@ function _defineBuiltinGetters({ vuexStore, storeName, self }) {
       return vuexStore.state[storeName]
     },
     [_internalName.store]() {
-      return self
+      return () => self
     },
   })
 }
