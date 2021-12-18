@@ -7,7 +7,7 @@
 - 基于 Vuex 构建，可与 Vuex 3 & 4 兼容和混合使用
 - 兼容 Vue 2 和 Vue 3，低学习成本，无迁移压力
 - 易于编写模块化的业务代码，Store 文件不再臃肿
-- 完全的 Typescript 支持，代码提示很友好
+- 完全的 TypeScript 支持，代码提示很友好
 - 类似 Pinia 的用法（可能还更简单）
 - 单元测试 Line Coverage: 100%
 
