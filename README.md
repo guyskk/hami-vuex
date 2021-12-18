@@ -1,6 +1,6 @@
 # Hami-Vuex
 
-> 哈密瓜味的 Vuex ！
+> 哈密瓜味的Vuex! State management for Vue.js
 
 **主要特点：**
 
@@ -9,6 +9,7 @@
 - 易于编写模块化的业务代码，Store 文件不再臃肿
 - 完全的 Typescript 支持，代码提示很友好
 - 类似 Pinia 的用法（可能还更简单）
+- 单元测试 Line Coverage: 100%
 
 ## 开始使用
 
