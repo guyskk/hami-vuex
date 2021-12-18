@@ -79,7 +79,7 @@ export const counterStore = hamiVuex.store({
 
     // 定义一个 getter，和 Vue computed 类似
     get double() {
-        return this.count + 1
+        return this.count * 2
     },
 
     // 定义一个函数，等价于 Vuex action
