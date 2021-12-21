@@ -20,3 +20,5 @@ jobs:
       - run: npm run lint
       - run: bash runtest.sh
       - uses: codecov/codecov-action@v2
+        with:
+          files: ./coverage/,./coverage4/
