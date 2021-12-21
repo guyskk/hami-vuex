@@ -1,5 +1,11 @@
 # Hami-Vuex
 
+<p>
+  <a href="https://npmjs.com/package/hami-vuex"><img src="https://badgen.net/npm/v/hami-vuex" alt="npm package"></a>
+  <a href="https://github.com/guyskk/hami-vuex/actions/workflows/test.yml"><img src="https://github.com/guyskk/hami-vuex/actions/workflows/test.yml/badge.svg?branch=main&event=push" alt="build status"></a>
+  <a href="https://codecov.io/github/guyskk/hami-vuex"><img src="https://badgen.net/codecov/c/github/guyskk/hami-vuex/main" alt="code coverage"></a>
+</p>
+
 > 哈密瓜味的Vuex! State management for Vue.js
 
 **主要特点：**
@@ -85,6 +91,7 @@ export const counterStore = hamiVuex.store({
     // 定义一个函数，等价于 Vuex action
     increment() {
         // $patch 是内置的 Vuex mutation，用于更新状态
+        // 可以传递 K:V 形式的对象，进行浅拷贝赋值
         this.$patch({
             count: this.count + 1
         })
@@ -221,11 +228,12 @@ const otherStore = defineHamiStore({
 
 由于 TypeScript 难以对 Vue 选项式接口做类型推断，写在同一层级可以避免这个问题。
 
-具体原理我也不太清楚，以下资料供参考：
+具体原因可以参考以下资料：
 
 - https://github.com/microsoft/TypeScript/pull/14141
 - https://github.com/microsoft/TypeScript/issues/13949
 - https://github.com/microsoft/TypeScript/issues/12846
+- https://github.com/microsoft/TypeScript/issues/47150
 
 ### 为什么 $name 和 $state 要加 $ 前缀？
 
@@ -245,10 +253,6 @@ const otherStore = defineHamiStore({
 
 ## 联系方式
 
-博客：[Guyskk的博客](https://blog.guyskk.com/) / 公众号：自宅创业
-
-欢迎与我联系交流，备注：Hami-Vuex
-
-<img src="https://github.com/anyant/rssant/raw/master/docs/pictures/guyskk-qrcode.jpg" alt="微信号:guyskk" width="240" height="240" />
-
 技术问题建议通过 issues 提交，方便讨论和搜索查阅。
+
+博客：[Guyskk的博客](https://blog.guyskk.com/) / 公众号：自宅创业
