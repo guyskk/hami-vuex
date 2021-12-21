@@ -1,5 +1,5 @@
 import Vuex from 'vuex'
-import { test, expect } from '@jest/globals'
+import { test, expect, jest } from '@jest/globals'
 import { defineHamiStore } from '../dist'
 import { isNil, isFunction } from './helper'
 import { Vue, IS_VUEX_3, createMountedVueApp, createVuexStore } from './helper'
@@ -129,6 +129,12 @@ test('defineHamiStore: counter using', async () => {
 test('defineHamiStore: using error', () => {
   const EmptyStore = defineHamiStore({})
   expect(() => EmptyStore.use({})).toThrow(/vuex store not found/)
+  const spy = jest.spyOn(console, 'warn').mockImplementation(() => {})
+  try {
+    expect(() => EmptyStore.use()).toThrow(/vuex store not found/)
+  } finally {
+    spy.mockRestore()
+  }
 })
 
 test('defineHamiStore: Vue 3 setup', () => {
