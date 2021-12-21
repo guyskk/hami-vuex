@@ -19,3 +19,4 @@ jobs:
       - run: npm clean-install
       - run: npm run lint
       - run: bash runtest.sh
+      - uses: codecov/codecov-action@v2
