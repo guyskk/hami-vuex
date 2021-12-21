@@ -1,4 +1,4 @@
-# Hami-Vuex (hami melon flavored)
+# Hami-Vuex 🍈 (hami melon flavored)
 
 <p>
   <a href="https://npmjs.com/package/hami-vuex"><img src="https://badgen.net/npm/v/hami-vuex" alt="npm package"></a>
