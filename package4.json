@@ -1,6 +1,6 @@
 {
   "name": "hami-vuex",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "哈密瓜味的Vuex! State management for Vue.js",
   "main": "dist/index.js",
   "files": [
