@@ -268,12 +268,11 @@ function _createMutations(mutationDefines, self) {
 }
 
 function _createMutationMethod(vuexStore, storeName, key) {
-  return function () {
+  return function (...params) {
     let result = { value: undefined }
     function callback(x) {
       result.value = x
     }
-    let params = [].slice.call(arguments)
     vuexStore.commit(`${storeName}/${key}`, { params, callback })
     return result.value
   }
@@ -308,12 +307,11 @@ function _createActions(actionDefines, self) {
 }
 
 function _createActionMethod(vuexStore, storeName, key) {
-  return function () {
+  return function (...params) {
     let result = { value: undefined }
     function callback(x) {
       result.value = x
     }
-    let params = [].slice.call(arguments)
     vuexStore.dispatch(`${storeName}/${key}`, { params, callback })
     return result.value
   }
