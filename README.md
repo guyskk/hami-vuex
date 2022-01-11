@@ -6,35 +6,35 @@
   <a href="https://codecov.io/github/guyskk/hami-vuex"><img src="https://badgen.net/codecov/c/github/guyskk/hami-vuex/main" alt="code coverage"></a>
 </p>
 
-**[Translate to English](README-EN.md)**
+**[查看中文文档](README-CN.md)**
 
-> 哈密瓜味的Vuex! State management for Vue.js
+> Hami melon flavored Vuex! State management for Vue.js
 
-**主要特点：**
+**Features：**
 
-- 基于 Vuex 构建，可与 Vuex 3 & 4 兼容和混合使用
-- 兼容 Vue 2 和 Vue 3，低学习成本，无迁移压力
-- 易于编写模块化的业务代码，Store 文件不再臃肿
-- 完全的 TypeScript 支持，代码提示很友好
-- 单元测试 Line Coverage: 100%
+- Build on Vuex, compatible with Vuex 3 & 4
+- Also compatible with Vue 2 and Vue 3
+- Modular by design, no more fat store
+- Completely TypeScript intelligence support
+- Unit tests line coverage: 100%
 
-## 开始使用
+## Usage
 
 ```bash
 npm install --save hami-vuex
 ```
 
-### 创建 Hami Vuex 实例
+### Create Hami Vuex instance
 
 ```js
 // store/index.js
 import { createHamiVuex } from 'hami-vuex'
 export const hamiVuex = createHamiVuex({
-    vuexStore: /* 按照 Vuex 文档创建的 Vuex Store 实例 */
+    vuexStore: /* the Vuex Store instance, created according to Vuex docs */
 })
 ```
 
-也可以使用默认创建的空 Vuex Store 对象，**Vue 2 + Vuex 3 的写法:**
+Or use the default empty Vuex Store instance, **Vue 2 + Vuex 3 Writing:**
 ```js
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -43,66 +43,66 @@ import { createHamiVuex } from 'hami-vuex'
 Vue.use(Vuex)
 
 export const hamiVuex = createHamiVuex({
-    /* 可选：Vuex Store 的构造参数 */
+    /* Optional：Vuex Store constructor options */
 })
 ```
 
-以及 **Vue 3 + Vuex 4 的写法:**
+And **Vue 3 + Vuex 4 Writing:**
 ```js
 import { createApp } from 'vue'
 import { createHamiVuex } from 'hami-vuex'
 
 export const hamiVuex = createHamiVuex({
-    /* 可选：Vuex Store 的构造参数 */
+    /* Optional：Vuex Store constructor options */
 })
 
 export const app = createApp()
 app.use(hamiVuex)
 ```
 
-Hami Vuex 实例用于创建和管理 Hami Store，所有业务功能都通过 Hami Store 实现。
+The Hami Vuex instance is for create and manage Hami Store instances, all business logics should implemented by Hami Store instances.
 
-### 创建一个 Counter Store
+### Create a Counter Store
 
 ```js
 // store/counter.js
 import { hamiVuex } from '@/store/index'
 
-// 实现原理：动态注册的 Vuex Module 对象
+// Internal：dynamic registered Vuex module
 export const counterStore = hamiVuex.store({
 
-    // 设置一个唯一名称，方便调试程序和显示错误信息
+    // unique name of the store, will appear in devtools
     $name: 'counter',
 
-    // 定义状态，可以是简单的对象（会自动做深拷贝处理）
+    // define the state with plain object（will auto deep copy it）
     $state: {
         count: 0,
     },
 
-    // 定义状态，也可以是返回状态的函数
+    // or a function that returns a fresh state
     $state() {
         return { count: 0 }
     }
 
-    // 定义一个 getter，和 Vue computed 类似
+    // define a getter, similar to Vue computed
     get double() {
         return this.count * 2
     },
 
-    // 定义一个函数，等价于 Vuex action
+    // define an action, similar to Vuex action
     increment() {
-        // $patch 是内置的 Vuex mutation，用于更新状态
-        // 可以传递 K:V 形式的对象，进行浅拷贝赋值
+        // $patch is builtin Vuex mutation, used for update state
+        // it accepts K:V object, will shallow asign to state
         this.$patch({
             count: this.count + 1
         })
-        // 对于复杂的操作，可以通过回调函数更新状态
+        // for complex operation, can use a mutator function
         this.$patch(state => {
             state.count = this.count + 1
         })
     },
 
-    // 定义一个异步函数，这也等价于 Vuex action
+    // also define an async action, similar to Vuex action
     async query() {
         let response = await http.get('/counter')
         this.$patch({
@@ -112,67 +112,67 @@ export const counterStore = hamiVuex.store({
 })
 ```
 
-我们不再需要定义 mutations，用内置的 $patch 就够了，所有的函数都是 actions 。
+We don't need define mutations, the builtin $patch mutation can handle all tasks.
 
-### 在 Vue 组件中使用 Counter Store
+### Use Counter Store in Vue component
 
 ```js
 import { counterStore } from '@/store/counter'
 
 export default {
     computed: {
-        // 使用 state 中定义的属性
+        // map state properties
         count: () => counterStore.count,
-        // 使用 getter 定义的属性
+        // map getters
         double: () => counterStore.double
     },
     methods: {
-        // 使用 action 方法
+        // map actions
         increment: counterStore.increment,
     },
     async mounted() {
-        // 直接调用 action 方法，以及访问属性（也可以 Store 之间互相调用）
+        // call actions, or use properties
         await counterStore.query()
         console.log(counterStore.count)
     },
     destroyed() {
-        // 可以通过 $reset 重置状态
+        // the $reset method will reset to initial state
         counterStore.$reset()
     }
 }
 ```
 
-恭喜你，可以尽情享用哈密瓜味的 Vuex 了！
+Congratulations, you can enjoy the hami melon flavored Vuex!
 
-## 高级用法
+## Advanced usage
 
-如果不需要 [Vue SSR 服务端渲染](https://ssr.vuejs.org/zh/)，则可以跳过以下高级用法（大部分情况都不需要）。
+If you don't need [Vue SSR](https://ssr.vuejs.org/zh/), you can skip the following advanced usages (which are not required in most cases).
 
-在上述基础用法中，Store 对象是 [有状态的单例](https://ssr.vuejs.org/zh/guide/structure.html#%E9%81%BF%E5%85%8D%E7%8A%B6%E6%80%81%E5%8D%95%E4%BE%8B)，在 Vue SSR 中使用这种对象，需要设置 [runInNewContext](https://ssr.vuejs.org/zh/api/#runinnewcontext) 参数为 `true`，这会带来比较大的服务器性能开销。
+In the above basic usage, the Store object is a [stateful singleton](https://ssr.vuejs.org/zh/guide/structure.html#%E9%81%BF%E5%85%8D%E7%8A%B6%E6%80%81%E5%8D%95%E4%BE%8B), and using such an object in Vue SSR requires setting the [runInNewContext](https://ssr.vuejs.org/zh/api/#runinnewcontext) parameter to `true`, which incurs a relatively large server performance overhead.
 
-高级用法可以避免「有状态的单例」，适合在 Vue 3 setup 方法中使用，也可以用于 Vue 选项式写法。
+Advanced usage avoids "stateful singletons" and is suitable for use in the Vue 3 setup method, as well as for Vue optional writing.
 
-### 定义一个 Counter Store
+### Define a Counter Store
 
 ```js
 import { defineHamiStore } from 'hami-vuex'
 
-// 注意：这里是首字母大写的 CounterStore !
+// Note: Here is the capitalization of the initials CounterStore !
 export const CounterStore = defineHamiStore({
-    /* 这里参数和 hamiVuex.store() 一样 */
+    /* Here the parameters are the same as hamiVuex.store() */
 })
 ```
 
-### 使用方法1: 绑定 Vuex Store 实例
+### Usage 1: Bind a Vuex Store instance
 
 ```js
-const vuexStore = /* Vuex Store 实例 */
+const vuexStore = /* Vuex Store instance */
 const counterStore = CounterStore.use(vuexStore)
 await counterStore.query()
 console.log(counterStore.count)
 ```
 
-### 使用方法2: 在 Vue setup 方法中使用
+### Usage 2: Used in the Vue setup method
 
 ```js
 export default {
@@ -184,12 +184,12 @@ export default {
 }
 ```
 
-### 使用方法3: 在 Vue computed 中使用
+### Usage 3: Used in Vue computed
 
 ```js
 export default {
     computed: {
-        // 效果类似于 Vuex mapActions, mapGetters
+        // Similar to Vuex mapActions, mapGetters
         counterStore: CounterStore.use,
         count: CounterStore.count,
         query: CounterStore.query,
@@ -197,7 +197,7 @@ export default {
 }
 ```
 
-### 使用方法4: 在 Store 中互相使用
+### Usage 4: Use each other in the Store
 
 ```js
 const otherStore = defineHamiStore({
@@ -210,50 +210,44 @@ const otherStore = defineHamiStore({
 })
 ```
 
-## 参考和鸣谢
+## References and acknowledgements
 
 - [Vuex 5 RFC](https://github.com/kiaking/rfcs/blob/vuex-5/active-rfcs/0000-vuex-5.md)
 - [Vuex 5 RFC Discussion](https://github.com/vuejs/rfcs/discussions/270)
 - [Proposal for Vuex 5](https://github.com/vuejs/vuex/issues/1763)
 - [Pinia](https://github.com/vuejs/pinia)
 
-特别感谢以上项目和资料给我带来了很多灵感，也希望 Hami Vuex 能给社区带来新的灵感！
+Special thanks to the above projects and materials for bringing me a lot of inspiration, and hope that Hami Vuex can bring new inspiration to the community!
 
-## 设计思路
+## Design considerations
 
-### 为什么要用「有状态的单例」？
+### Why use "stateful singleton"?
 
-有状态的单例使用更加简单方便，仅在 Vue SSR 方面性能不佳。对于大部分单页应用都不需要 Vue SSR，所以可以放心使用「有状态的单例」，在必要情况下也可以切换到高级用法。
+Stateful singletons are simpler and more convenient to use, and only perform poorly in terms of Vue SSR. Vue SSR is not required for most single-page applications, so you can use "stateful singleton" with confidence and switch to advanced usage if necessary.
 
-### 为什么要把 getters 和 actions 写在同一层级？
+### Why write getters and actions at the same level?
 
-由于 TypeScript 难以对 Vue 选项式接口做类型推断，写在同一层级可以避免这个问题。
+Since TypeScript is difficult to type infer from the Vue optional interface, writing at the same level avoids this problem.
 
-具体原因可以参考以下资料：
+For specific reasons, please refer to the following information:
 
 - https://github.com/microsoft/TypeScript/pull/14141
 - https://github.com/microsoft/TypeScript/issues/13949
 - https://github.com/microsoft/TypeScript/issues/12846
 - https://github.com/microsoft/TypeScript/issues/47150
 
-### 为什么 $name 和 $state 要加 $ 前缀？
+### Why are `$name` and `$state` prefixed with `$`?
 
-因为把所有字段写在同一层级之后，需要避免名称冲突，所以特殊字段都用 $ 前缀。
+Because all fields need to avoid name conflicts after writing them at the same level, special fields are prefixed with `$`.
 
-### 为什么不用 mutations 了？
+### Why not use mutations anymore?
 
-用 mutations 的好处是在 devtools 调试更方便，坏处是代码稍微繁琐一些。还有一个问题是，把所有字段写在同一层级之后，难以区分 actions 和 mutations。经过权衡，决定不用 mutations 了。
+The advantage of using mutations is that it is more convenient to debug in devtools, the disadvantage is that the code is slightly more cumbersome. Another problem is that after writing all fields at the same level, it is difficult to distinguish between actions and mutations. After weighing it, it was decided not to use mutations.
 
-### 为什么不用 Pinia ？
+### Why not use Pinia?
 
-用过一段时间 Pinia，觉得 devtools 插件支持不太好，不稳定。另外 Pinia 的写法对 Vue 选项式用法不够友好，应该是为了支持 Vue SSR 导致的。
+After using Pinia for a while, I felt that the devtools plugin support was not very good and unstable. In addition, Pinia is not written in a way that is friendly enough for Vue optional usage, and should be caused by supporting Vue SSR.
 
-### 为什么基于 Vuex 实现？
+### Why is it based on Vuex?
 
-我认为 Vuex 本身做的很好，改进一下接口设计就可以达到我要的效果，不需要重复造轮子。而且基于 Vuex 实现，可以最大程度兼容老代码，很容易做平滑迁移。
-
-## 联系方式
-
-技术问题建议通过 issues 提交，方便讨论和搜索查阅。
-
-博客：[Guyskk的博客](https://blog.guyskk.com/) / 公众号：自宅创业
+I think Vuex itself does a good job, and improving the interface design can achieve the effect I want, without having to make the wheels repeatedly. And based on the Vuex implementation, it can be compatible with old code to the greatest extent, and it is easy to do smooth migration.
