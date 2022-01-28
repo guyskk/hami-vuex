@@ -144,6 +144,25 @@ export default {
 
 恭喜你，可以尽情享用哈密瓜味的 Vuex 了！
 
+### TypeScript支持
+
+Hami-Vuex 完全支持 TypeScript，可以通过 TypeScript 配置，让类型推断更智能（代码提示更友好）。
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    // 与 Vue 的浏览器支持保持一致
+    "target": "es5",
+    // 这可以对 `this` 上的数据 property 进行更严格的推断
+    "strict": true
+  }
+}
+```
+
+详细说明可参考：[TypeScript 支持 - Vue.js](https://cn.vuejs.org/v2/guide/typescript.html)
+
+
 ## 高级用法
 
 如果不需要 [Vue SSR 服务端渲染](https://ssr.vuejs.org/zh/)，则可以跳过以下高级用法（大部分情况都不需要）。

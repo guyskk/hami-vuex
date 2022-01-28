@@ -144,6 +144,26 @@ export default {
 
 Congratulations, you can enjoy the hami melon flavored Vuex!
 
+
+### TypeScript Support
+
+Hami-Vuex completely support TypeScript, you can configure TypeScript to make type inference smarter (better code intelligence).
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    // this aligns with Vue's browser support
+    "target": "es5",
+    // this enables stricter inference for data properties on `this`
+    "strict": true,
+  }
+}
+```
+
+Detailed instructions: [TypeScript Support - Vue.js](https://vuejs.org/v2/guide/typescript.html)
+
+
 ## Advanced usage
 
 If you don't need [Vue SSR](https://ssr.vuejs.org/zh/), you can skip the following advanced usages (which are not required in most cases).
