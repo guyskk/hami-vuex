@@ -148,7 +148,7 @@ export default {
 
 Hami-Vuex 完全支持 TypeScript，可以通过 TypeScript 配置，让类型推断更智能（代码提示更友好）。
 
-```json
+```javascript
 // tsconfig.json
 {
   "compilerOptions": {

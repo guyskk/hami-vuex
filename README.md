@@ -149,7 +149,7 @@ Congratulations, you can enjoy the hami melon flavored Vuex!
 
 Hami-Vuex completely support TypeScript, you can configure TypeScript to make type inference smarter (better code intelligence).
 
-```json
+```javascript
 // tsconfig.json
 {
   "compilerOptions": {
