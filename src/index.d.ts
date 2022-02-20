@@ -62,4 +62,5 @@ declare function createHamiVuex<
     VS = {}
 >(options?: HamiVuexOptions<VS>): HamiVuex<VS>;
 
+export type { HamiVuex, HamiStore, HamiStoreUsing }
 export { createHamiVuex, defineHamiStore }
